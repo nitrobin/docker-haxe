@@ -1,7 +1,7 @@
 FROM debian:jessie
 MAINTAINER nitrobin
 
-#ENV DEBIAN_FRONTEND noninteractive
+ENV DEBIAN_FRONTEND noninteractive
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 
 # Dependencies
@@ -30,7 +30,7 @@ ENV LD_LIBRARY_PATH $NEKOPATH
 ENV PATH $NEKOPATH:$PATH
 
 # Node environment variables
-ENV NODEVERSION 0.12.7
+ENV NODEVERSION 4.2.3
 ENV NODEURL https://nodejs.org/dist/v$NODEVERSION/node-v$NODEVERSION-linux-x64.tar.gz
 ENV NODEPATH /opt/node
 ENV PATH $NODEPATH/bin:$PATH
@@ -51,7 +51,20 @@ RUN mkdir -p $HAXELIB_PATH
 RUN echo $HAXELIB_PATH > /root/.haxelib && cp /root/.haxelib /etc/
 
 #Install haxe libraries
-RUN haxelib install hxcpp
+RUN yes|haxelib install hxcpp 3.2.193
+RUN yes|haxelib install format 3.2.1
+RUN yes|haxelib install lime 2.7.0
+RUN yes|haxelib install openfl 3.4.0
+RUN yes|haxelib install hscript 2.0.5
+RUN yes|haxelib install msignal 1.2.2
+RUN yes|haxelib install tjson 1.4.0
+RUN yes|haxelib install actuate 1.8.6
+RUN yes|haxelib install inthebox-macros 1.2.0
+RUN yes|haxelib install tjson 1.4.0
+RUN yes|haxelib install protohx 0.4.6
+
+# workaround for https://github.com/HaxeFoundation/haxe/issues/3912
+ENV HAXE_STD_PATH $HAXE_STD_PATH:.:/
 
 # Scripts
 ADD scripts /root/scripts
