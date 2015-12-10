@@ -7,10 +7,10 @@ RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 # Dependencies
 RUN apt-get update \
     && apt-get install -y \
-      wget \
-      g++ g++-multilib libgc-dev \
-      python3 \
-      php5-cli \
+          wget \
+          g++ g++-multilib libgc-dev \
+          python3 \
+          php5-cli \
     && apt-get clean
 
 
@@ -52,16 +52,17 @@ RUN echo $HAXELIB_PATH > /root/.haxelib && cp /root/.haxelib /etc/
 
 #Install haxe libraries
 RUN yes|haxelib install hxcpp 3.2.193
-RUN yes|haxelib install format 3.2.1
-RUN yes|haxelib install lime 2.7.0
-RUN yes|haxelib install openfl 3.4.0
-RUN yes|haxelib install hscript 2.0.5
-RUN yes|haxelib install msignal 1.2.2
-RUN yes|haxelib install tjson 1.4.0
-RUN yes|haxelib install actuate 1.8.6
-RUN yes|haxelib install inthebox-macros 1.2.0
-RUN yes|haxelib install tjson 1.4.0
-RUN yes|haxelib install protohx 0.4.6
+
+RUN yes|haxelib install lime 2.7.0 \
+ && yes|haxelib install openfl 3.4.0 \
+ && yes|haxelib install format 3.2.1 \
+ && yes|haxelib install actuate 1.8.6\
+ && yes|haxelib install hscript 2.0.5
+ 
+RUN yes|haxelib install msignal 1.2.2 \
+ && yes|haxelib install tjson 1.4.0 \
+ && yes|haxelib install inthebox-macros 1.2.0 \
+ && yes|haxelib install protohx 0.4.6
 
 # workaround for https://github.com/HaxeFoundation/haxe/issues/3912
 ENV HAXE_STD_PATH $HAXE_STD_PATH:.:/
@@ -73,5 +74,22 @@ ADD scripts /root/scripts
 ADD test /root/test
 #WORKDIR /root/test
 RUN /root/test/verify.sh
+
+ENV ANDROIDSDKVERSION 24.3.4
+ENV ANDROIDSDKURL http://dl.google.com/android/android-sdk_r$ANDROIDSDKVERSION-linux.tgz
+#ENV ANDROIDSDKURL http://exchange/install/android-sdk-ndk/android-sdk_r$ANDROIDSDKVERSION-linux.tgz
+ENV ANDROIDSDKPATH /opt/android-sdk
+RUN mkdir -p $ANDROIDSDKPATH
+RUN wget -O - $ANDROIDSDKURL | tar xzf - --strip=1 -C $ANDROIDSDKPATH
+
+
+ENV ANDROIDNDKVERSION 10e
+ENV ANDROIDNDKURL http://dl.google.com/android/ndk/android-ndk-r$ANDROIDNDKVERSION-linux-x86_64.bin
+#ENV ANDROIDNDKURL http://exchange/install/android-sdk-ndk/android-ndk-r$ANDROIDNDKVERSION-linux-x86_64.bin
+ENV ANDROIDNDKPATH /opt/android-ndk
+RUN cd /opt && wget -v -O /opt/android-ndk.bin $ANDROIDNDKURL \
+    && chmod a+x /opt/android-ndk.bin && /opt/android-ndk.bin \
+    && rm -f /opt/android-ndk.bin && ln -s android-ndk-r$ANDROIDNDKVERSION android-ndk
+
 
 CMD ["/bin/bash"]
